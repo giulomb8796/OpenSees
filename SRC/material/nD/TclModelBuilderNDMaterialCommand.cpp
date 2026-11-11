@@ -52,6 +52,7 @@
 #include <PressureDependMultiYield02.h>
 #include <PressureDependMultiYield03.h>
 #include <FluidSolidPorousMaterial.h>
+#include <TIMgUP.h>
 
 #include <MultiYieldSurfaceClay.h>
 #include <string.h>
@@ -121,6 +122,7 @@ extern void* OPS_OrthotropicMaterial(void);
 extern void* OPS_Series3DMaterial(void);
 extern void* OPS_Parallel3DMaterial(void);
 extern void* OPS_ASDConcrete3DMaterial(void);
+extern "C" void* OPS_TIMgUP(void);    // G.Lombardi & D.N.Gorini
 #ifdef _EIGEN3
 extern void* OPS_AllASDPlasticMaterial3Ds(void);
 #endif // _EIGEN3
@@ -382,6 +384,17 @@ TclModelBuilderNDMaterialCommand (ClientData clientData, Tcl_Interp *interp, int
       else 
 	return TCL_ERROR;
     }
+
+
+
+	else if ((strcmp(argv[1], "TIMgUP") == 0)) {
+		void* theMat = OPS_TIMgUP();
+		if (theMat != 0)
+			theMaterial = (NDMaterial*)theMat;
+		else
+			return TCL_ERROR;
+			}
+
 
 
 

@@ -83,6 +83,7 @@ target_sources(OPS_Material
     ElasticOrthotropicPlaneStress.cpp
     VonPapaDamage.cpp
     ASDConcrete3DMaterial.cpp
+    TIMgUP.cpp
   PUBLIC
     NDMaterial.h
     BeamFiberMaterial.h
@@ -161,6 +162,7 @@ target_sources(OPS_Material
     ElasticOrthotropicPlaneStress.h
     VonPapaDamage.h
     ASDConcrete3DMaterial.h
+    TIMgUP.h
 )
 
 target_include_directories(OPS_Material PUBLIC ${CMAKE_CURRENT_LIST_DIR})

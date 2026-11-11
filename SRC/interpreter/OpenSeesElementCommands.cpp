@@ -267,6 +267,8 @@ void* OPS_ShellNLDKGTThermal();
 void* OPS_PipeElement();
 void* OPS_CurvedPipeElement();
 void* OPS_PML3DVISCOUS(void);
+void* OPS_ZeroLength6D();
+
 
 
 namespace {
@@ -843,6 +845,7 @@ namespace {
 	functionMap.insert(std::make_pair("Pipe", &OPS_PipeElement));
 	functionMap.insert(std::make_pair("pipe", &OPS_PipeElement));
 	functionMap.insert(std::make_pair("CurvedPipe", &OPS_CurvedPipeElement));
+	functionMap.insert(std::make_pair("ZeroLength6D", &OPS_ZeroLength6D));
 	return 0;
     }
 }

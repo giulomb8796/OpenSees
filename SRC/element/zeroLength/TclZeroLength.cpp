@@ -34,6 +34,7 @@
 
 #include <ZeroLength.h>
 #include <ZeroLengthND.h>
+#include <ZeroLength6D.h>
 #include <ZeroLengthSection.h>
 #include <ZeroLengthContact2D.h>
 #include <ZeroLengthRocking.h>
@@ -916,6 +917,170 @@ TclModelBuilder_addZeroLengthND(ClientData clientData, Tcl_Interp *interp,
 	
 	return TCL_OK;
 }
+
+
+int
+TclModelBuilder_addZeroLength6D(ClientData clientData, Tcl_Interp* interp,
+    int argc, TCL_Char** argv,
+    Domain* theDomain,
+    TclModelBuilder* theBuilder) {
+
+    int ndm = theBuilder->getNDM(); // the spatial dimension of the problem
+
+    //
+    // first scan the command line to obtain eleID, iNode, jNode, material ID's
+    // and their directions, and the orientation of ele xPrime and yPrime not
+    // along the global x and y axis
+    //
+
+    int eleTag, iNode, jNode;
+
+    // a quick check on number of args
+    if (argc < 6) {
+        opserr << "WARNING too few arguments\n" <<
+            "want - element zeroLength6D eleTag? iNode? jNode? " <<
+            "NDTag? <1DTag?>" <<
+            "<-orient x1? x2? x3? y1? y2? y3?>\n";
+        return TCL_ERROR;
+    }
+
+    // get the ele tag 
+    if (Tcl_GetInt(interp, argv[2], &eleTag) != TCL_OK) {
+        opserr << "WARNING invalid eleTag " <<
+            argv[2] << " - element zeroLength6D eleTag? iNode? jNode? NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+
+        return TCL_ERROR;
+    }
+
+    // get the two end nodes
+    if (Tcl_GetInt(interp, argv[3], &iNode) != TCL_OK) {
+        opserr << "WARNING invalid iNode " <<
+            argv[3] <<
+            "- element zeroLength6D eleTag? iNode? jNode? " <<
+            "NDTag? <1DTag?>" <<
+            "<-orient x1? x2? x3? y1? y2? y3?>\n";
+        return TCL_ERROR;
+    }
+
+    if (Tcl_GetInt(interp, argv[4], &jNode) != TCL_OK) {
+        opserr << "WARNING invalid jNode " <<
+            argv[4] << "- element zeroLength6D eleTag? iNode? jNode? " <<
+            "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+        return TCL_ERROR;
+    }
+
+    int NDTag;
+
+    if (Tcl_GetInt(interp, argv[5], &NDTag) != TCL_OK) {
+        opserr << "WARNING invalid NDTag\n" <<
+            argv[5] << "- element zeroLength6D eleTag? iNode? jNode? " <<
+            "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+
+        return TCL_ERROR;
+    }
+
+    UniaxialMaterial* the1DMat = 0;
+
+    int argi = 6;
+
+    if (argc > 6 && strcmp(argv[6], "-orient") != 0) {
+
+        int uniTag;
+
+        if (Tcl_GetInt(interp, argv[6], &uniTag) != TCL_OK) {
+            opserr << "WARNING invalid NDTag " <<
+                argv[5] << "- element zeroLength6D eleTag? iNode? jNode? " <<
+                "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+            return TCL_ERROR;
+        }
+
+        the1DMat = OPS_getUniaxialMaterial(uniTag);
+
+        if (the1DMat == 0)
+            opserr << "WARNING UniaxialMaterial " << uniTag << " not found in model, proceeding without\n";
+
+        argi = 7;
+    }
+
+    // create the vectors for the element orientation
+    Vector x(3); x(0) = 1.0; x(1) = 0.0; x(2) = 0.0;
+    Vector y(3); y(0) = 0.0; y(1) = 1.0; y(2) = 0.0;
+
+    // finally check the command line to see if user specified orientation
+    if (argi < argc) {
+        if (strcmp(argv[argi], "-orient") == 0) {
+            if (argc < (argi + 7)) {
+                opserr << "WARNING not enough parameters after -orient flag for ele " <<
+                    eleTag << "- element zeroLength6D eleTag? iNode? jNode? " <<
+                    "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+                return TCL_ERROR;
+            }
+            else {
+                argi++;
+                double value;
+                // read the x values
+                for (int i = 0; i < 3; i++) {
+                    if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+                        opserr << "WARNING invalid -orient value for ele  " <<
+                            eleTag << argv[argi] << "- element zeroLength6D eleTag? iNode? jNode? " <<
+                            "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+
+                        return TCL_ERROR;
+                    }
+                    else {
+                        argi++;
+                        x(i) = value;
+                    }
+                }
+                // read the y values
+                for (int j = 0; j < 3; j++) {
+                    if (Tcl_GetDouble(interp, argv[argi], &value) != TCL_OK) {
+                        opserr << "WARNING invalid -orient value for ele  " <<
+                            eleTag << " " << argv[argi] <<
+                            "- element zeroLength6D eleTag? iNode? jNode? " <<
+                            "NDTag? <1DTag?> <-orient x1? x2? x3? y1? y2? y3?>\n";
+                        return TCL_ERROR;
+                    }
+                    else {
+                        argi++;
+                        y(j) = value;
+                    }
+                }
+            }
+        }
+    }
+
+    //
+    // now we create the element and add it to the domain
+    //
+
+    NDMaterial* theNDMat = OPS_getNDMaterial(NDTag);
+
+    if (theNDMat == 0) {
+        opserr << "zeroLength6D -- no NDMaterial with tag " << NDTag << " exists in Domain\n";
+        return TCL_ERROR;
+    }
+
+    // FIXED: Correctly instantiating ZeroLength6D instead of ZeroLengthND
+    Element* theEle = 0;
+
+    if (the1DMat != 0) {
+        opserr << "WARNING - element zeroLength6D does not natively support an additional UniaxialMaterial.\n"
+            << "Proceeding by instantiating ZeroLength6D with NDMaterial only for eleTag " << eleTag << "\n";
+    }
+
+    // Call to your ZeroLength6D class constructor
+    theEle = new ZeroLength6D(eleTag, ndm, iNode, jNode, x, y, *theNDMat);
+
+    if (theEle == 0)
+        return TCL_ERROR;
+
+    if (theDomain->addElement(theEle) == false)
+        return TCL_ERROR;
+
+    return TCL_OK;
+}
+
 
 
 int

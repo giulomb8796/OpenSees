@@ -296,6 +296,9 @@ extern int
 TclModelBuilder_addZeroLengthND(ClientData, Tcl_Interp *, int, TCL_Char **,
 				Domain*, TclModelBuilder *);
 
+extern int
+TclModelBuilder_addZeroLength6D(ClientData, Tcl_Interp*, int, TCL_Char**,
+    Domain*, TclModelBuilder*);
 
 // MHS
 extern int
@@ -1993,6 +1996,11 @@ TclModelBuilderElementCommand(ClientData clientData, Tcl_Interp *interp,
     int result = TclModelBuilder_addZeroLengthND(clientData, interp, argc, argv,
 						 theTclDomain, theTclBuilder);
     return result;
+  } else if (strcmp(argv[1], "zeroLength6D") == 0) {
+      int result = TclModelBuilder_addZeroLength6D(clientData, interp, argc, argv,
+          theTclDomain, theTclBuilder);
+
+      return result;
   } else if ((strcmp(argv[1],"Joint2D") == 0) ||
 	     (strcmp(argv[1],"Joint2d") == 0)) {
     int result = TclModelBuilder_addJoint2D(clientData, interp, argc, argv,theTclDomain);

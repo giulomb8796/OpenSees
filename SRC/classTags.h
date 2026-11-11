@@ -575,6 +575,7 @@
 
 #define ND_TAG_FAM_CS 40801 // Shaohui Zhang, Xiaodong Ji - Tsinghua University
 
+#define ND_TAG_TIMgUP 100102  // Giuseppe Lombardi & Davide No� Gorini
 
 #define FIBER_TAG_Uniaxial2d	1
 #define FIBER_TAG_Uniaxial3d	2
@@ -911,6 +912,7 @@
 #define ELE_TAG_CurvedPipe                      270
 #define ELE_TAG_PML3DVISCOUS               271 // Amin Pakzad
 #define ELE_TAG_MEFI_3D        			  272 // C. N. Lopez
+#define ELE_TAG_ZeroLength6D	        1099  // Davide No� Gorini
 
 #define FRN_TAG_Coulomb            1
 #define FRN_TAG_VelDependent       2

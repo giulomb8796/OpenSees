@@ -19,6 +19,7 @@ target_sources(OPS_Element
     ZeroLengthRocking.cpp
     ZeroLengthSection.cpp
     ZeroLengthVG_HG.cpp
+    ZeroLength6D.cpp
     PUBLIC
     ZeroLength.h
     CoupledZeroLength.h
@@ -32,5 +33,6 @@ target_sources(OPS_Element
     ZeroLengthRocking.h
     ZeroLengthSection.h
     ZeroLengthVG_HG.h
+    ZeroLength6D.h
 )
 target_include_directories(OPS_Element PUBLIC ${CMAKE_CURRENT_LIST_DIR})
